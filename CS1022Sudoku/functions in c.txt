@@ -1,0 +1,27 @@
+//added functions in serial.c
+
+#ifdef __cplusplus__
+
+  #include <iostream>
+  #include <string>
+
+  void ClearScreen()
+    {
+		printf("%c[1;1f%c[J", 27, 27);
+    }
+
+#else
+
+  #include <stdio.h>
+
+  void ClearScreen()
+    {
+			printf("%c[1;1f%c[J", 27, 27);
+    }
+
+#endif 		
+//found in the uvision support documentation at http://www.keil.com/support/man/docs/uv4/uv4_db_dbg_serialwin.htm
+void setCursorPosition(int x, int y)
+{	
+        printf("%c[%i;%if", 27, (signed int)x, (signed int)y);
+}

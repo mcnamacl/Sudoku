@@ -1,0 +1,2322 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000                 AREA             Sudoku, CODE, READONLY
+    2 00000000                 IMPORT           main
+    3 00000000                 IMPORT           getkey
+    4 00000000                 IMPORT           sendchar
+    5 00000000                 IMPORT           ClearScreen
+    6 00000000                 IMPORT           setCursorPosition
+    7 00000000                 EXPORT           start
+    8 00000000                 PRESERVE8
+    9 00000000         
+   10 00000000         start
+   11 00000000 EBFFFFFE        BL               ClearScreen ; clear console scr
+                                                            een
+   12 00000004 E59F0724        LDR              R0, =greeting 
+                                                            ; load greet string
+                                                            
+   13 00000008 EB00005A        BL               displayString 
+                                                            ; display greeting
+   14 0000000C         
+   15 0000000C EBFFFFFE        BL               getkey      ; 
+   16 00000010 E3500031        CMP              R0, #'1'    ; if (userInput == 
+                                                            1){
+   17 00000014 0A000007        BEQ              getGridOne  ; load grid one}
+   18 00000018         
+   19 00000018 E3500032        CMP              R0, #'2'    ; else if (userInpu
+                                                            t == 2){
+   20 0000001C 0A000007        BEQ              getGridTwo  ; load grid two}
+   21 00000020         
+   22 00000020 E3500033        CMP              R0, #'3'    ; else if (userInpu
+                                                            t == 3){
+   23 00000024 0A000007        BEQ              getGridThree ; load grid three}
+                                                            
+   24 00000028         
+   25 00000028 E3500034        CMP              R0, #'4'    ; else if (userInpu
+                                                            t == 4){
+   26 0000002C 0A000007        BEQ              getGridFour ; load grid four}
+   27 00000030         
+   28 00000030 E3500035        CMP              R0, #'5'    ; else if (userInpu
+                                                            t == 5){
+   29 00000034 0A000007        BEQ              getGridFive ; load grid five}
+   30 00000038         
+   31 00000038         getGridOne
+   32 00000038 E59F66F4        LDR              R6, =gridOne
+   33 0000003C EA000007        B                askUser
+   34 00000040         
+   35 00000040         getGridTwo
+   36 00000040 E59F66F0        LDR              R6, =gridTwo
+   37 00000044 EA000005        B                askUser
+   38 00000048         
+   39 00000048         getGridThree
+   40 00000048 E59F66EC        LDR              R6, =gridThree
+   41 0000004C EA000003        B                askUser
+   42 00000050         
+   43 00000050         getGridFour
+   44 00000050 E59F66E8        LDR              R6, =gridFour
+   45 00000054 EA000001        B                askUser
+   46 00000058         
+   47 00000058         getGridFive
+   48 00000058 E59F66E4        LDR              R6, =gridFive
+   49 0000005C EAFFFFFF        B                askUser
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   50 00000060         
+   51 00000060         askUser
+   52 00000060 EBFFFFFE        BL               sendchar    ; send userInput to
+                                                             console
+   53 00000064 EBFFFFFE        BL               ClearScreen ; clear console
+   54 00000068 E59F06D8        LDR              R0, =query  ; load query string
+                                                            
+   55 0000006C EB000041        BL               displayString ; display query
+   56 00000070         
+   57 00000070 EBFFFFFE        BL               getkey      ; get userInput
+   58 00000074 E3500079        CMP              R0, #'y'    ; if (userInput == 
+                                                            y){
+   59 00000078 1A00000B        BNE              startSolving
+   60 0000007C         
+   61 0000007C EBFFFFFE        BL               sendchar    ; send userInput to
+                                                             console
+   62 00000080 E1A00006        MOV              R0, R6      ;
+   63 00000084 EB00018B        BL               copyGrid    ; copy chosen grid 
+                                                            to tmp grid
+   64 00000088 E1A05000        MOV              R5, R0      ;
+   65 0000008C EBFFFFFE        BL               ClearScreen ; clear console
+   66 00000090 E59F06B4        LDR              R0, =inputSystem ; load inputSy
+                                                            stem string 
+   67 00000094 EB000037        BL               displayString ; display inputSy
+                                                            stem 
+   68 00000098 E1A00006        MOV              R0, R6      ; set up grid as pa
+                                                            rameter
+   69 0000009C EB00015C        BL               display     ; display grid
+   70 000000A0 E1A00006        MOV              R0, R6      ; set up grid as pa
+                                                            rameter
+   71 000000A4 E1A01005        MOV              R1, R5      ; give amount of or
+                                                            iginal coordinates 
+                                                            in grid
+   72 000000A8 EB0000C4        BL               takeInputs  ; get the user to i
+                                                            nput the numbers in
+                                                            to the grid}
+   73 000000AC         
+   74 000000AC         startSolving                         ; else {
+   75 000000AC EBFFFFFE        BL               sendchar    ; send userInput to
+                                                             console
+   76 000000B0 EBFFFFFE        BL               ClearScreen ; clear console
+   77 000000B4 E1A00006        MOV              R0, R6      ; set up grid as pa
+                                                            rameter
+   78 000000B8 E3A01000        MOV              R1, #0      ; x = 0
+   79 000000BC E3A02000        MOV              R2, #0      ; y = 0
+   80 000000C0 E3A03000        MOV              R3, #0      ; for counter = 0
+   81 000000C4 EB00010A        BL               sudoku      ; solve sudoku
+   82 000000C8 E3500000        CMP              R0, #0      ; if (solved != tru
+                                                            e) {
+   83 000000CC 0A00000D        BEQ              printAnswer
+   84 000000D0         
+   85 000000D0 E59F0678        LDR              R0, =error  ; load error string
+                                                            
+   86 000000D4 EB000027        BL               displayString ; display error
+   87 000000D8         
+   88 000000D8 E59F0674        LDR              R0, =tmpGrid ; get tmp grid wit
+                                                            h copy of original 
+                                                            grid
+   89 000000DC E3A01000        MOV              R1, #0      ; x = 0
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+   90 000000E0 E3A02000        MOV              R2, #0      ; y = 0
+   91 000000E4 E3A03000        MOV              R3, #0      ; for counter = 0
+   92 000000E8 EB000101        BL               sudoku      ; solve
+   93 000000EC E59F0660        LDR              R0, =tmpGrid ; 
+   94 000000F0 EB000147        BL               display     ; display grid
+   95 000000F4 E3A0000A        MOV              R0, #0x0A   ; new line
+   96 000000F8 EBFFFFFE        BL               sendchar    ;
+   97 000000FC E59F0654        LDR              R0, =correct ; load correct str
+                                                            ing
+   98 00000100 EB00001C        BL               displayString ; display correct
+                                                            
+   99 00000104 EA000004        B                stop        ; }
+  100 00000108         
+  101 00000108         printAnswer                          ; else {
+  102 00000108 EBFFFFFE        BL               ClearScreen ; clear screen
+  103 0000010C E59F0644        LDR              R0, =correct ; load corrext str
+                                                            ing
+  104 00000110 EB000018        BL               displayString ; display correct
+                                                            
+  105 00000114 E1A00006        MOV              R0, R6      ; set up grid as pa
+                                                            rameter
+  106 00000118 EB00013D        BL               display     ; display solved gr
+                                                            id}
+  107 0000011C         
+  108 0000011C EAFFFFFE 
+                       stop    B                stop
+  109 00000120         
+  110 00000120         
+  111 00000120         
+  112 00000120         ; getSquare subroutine (2D)
+  113 00000120         ; returns R3 = element at given coordinates
+  114 00000120         ; parameters R0 = starting address of grid, R1 = row num
+                       ber, R2 = column number
+  115 00000120         getSquare
+  116 00000120 E92D47F0        STMFD            sp!,{R4-R10,LR} ;
+  117 00000124 E1A04000        MOV              R4, R0      ; array start adr
+  118 00000128 E1A05001        MOV              R5, R1      ; row number
+  119 0000012C E1A06002        MOV              R6, R2      ; column number
+  120 00000130 E3A07009        MOV              R7, #9      ; number of rows
+  121 00000134 E3A08009        MOV              R8, #9      ; number of columns
+                                                            
+  122 00000138 E0090795        MUL              R9, R5, R7  ;
+  123 0000013C E0899006        ADD              R9, R9, R6  ; get index of elem
+                                                            ent
+  124 00000140 E7D4A009        LDRB             R10, [R4, R9] ; get element
+  125 00000144 E1A0300A        MOV              R3, R10     ; put element in pa
+                                                            rameter
+  126 00000148 E8BD87F0        LDMFD            sp!,{R4-R10,pc}
+  127 0000014C         
+  128 0000014C         ; setSquare subroutine (2D)
+  129 0000014C         ; returns void
+  130 0000014C         ; parameters R0 = starting address of grid, R1 = row num
+                       ber, R2 = column number, R3 = number to be placed
+  131 0000014C         setSquare
+  132 0000014C E92D47F0        STMFD            sp!,{R4-R10,LR} ;
+  133 00000150 E1A04000        MOV              R4, R0      ; array start adr
+  134 00000154 E1A05001        MOV              R5, R1      ; row number
+  135 00000158 E1A06002        MOV              R6, R2      ; column number
+  136 0000015C E1A0A003        MOV              R10, R3     ; number to be plac
+
+
+
+ARM Macro Assembler    Page 4 
+
+
+                                                            ed
+  137 00000160 E3A07009        MOV              R7, #9      ; number of rows
+  138 00000164 E3A08009        MOV              R8, #9      ; number of columns
+                                                            
+  139 00000168 E0090795        MUL              R9, R5, R7  ;
+  140 0000016C E0899006        ADD              R9, R9, R6  ; get index of wher
+                                                            e the element is to
+                                                             be stored
+  141 00000170 E7C4A009        STRB             R10, [R4, R9] ; store element
+  142 00000174 E8BD87F0        LDMFD            sp!,{R4-R10,pc}
+  143 00000178         
+  144 00000178         
+  145 00000178         ; displayString subroutine
+  146 00000178         ; returns void
+  147 00000178         ; parameters R0 = starting address of string
+  148 00000178         displayString
+  149 00000178 E92D4030        STMFD            SP!, {R4, R5, LR} ;
+  150 0000017C E1A04000        MOV              R4, R0      ; 
+  151 00000180         
+  152 00000180         displayStringLoop
+  153 00000180 E4D45001        LDRB             R5, [R4], #1 ; load char, adr++
+                                                            
+  154 00000184 E3550000        CMP              R5, #0      ; if (char != 0){
+  155 00000188 0A000002        BEQ              endDisplayString ; 
+  156 0000018C E1A00005        MOV              R0, R5      ; display the char
+  157 00000190 EBFFFFFE        BL               sendchar    ; }
+  158 00000194 EAFFFFF9        B                displayStringLoop ; 
+  159 00000198         
+  160 00000198         endDisplayString
+  161 00000198 E8BD8030        LDMFD            SP!, {R4, R5, PC} ;
+  162 0000019C         
+  163 0000019C         
+  164 0000019C         ; isValid subroutine
+  165 0000019C         ; returns R0 = 0 (true) / R0 = 1 (false)
+  166 0000019C         ; parameters R0 = starting address of grid
+  167 0000019C         isValidAll
+  168 0000019C E92D40F0        STMFD            SP!, {R4-R7, LR} ;
+  169 000001A0 E1A04000        MOV              R4, R0      ; load grid address
+                                                            
+  170 000001A4 E1A05001        MOV              R5, R1      ; saving row number
+                                                            
+  171 000001A8 E1A06002        MOV              R6, R2      ; saving column num
+                                                            ber
+  172 000001AC         
+  173 000001AC E1A00004        MOV              R0, R4      ; set up parameters
+                                                            
+  174 000001B0 E1A01005        MOV              R1, R5      ;
+  175 000001B4 E3A03001        MOV              R3, #1      ; checkRow = true
+  176 000001B8 EB00000C        BL               isValidRowAndCol ; check rows
+  177 000001BC E3500000        CMP              R0, #0      ; if invalid end 
+  178 000001C0 1A000009        BNE              endIsValid
+  179 000001C4         
+  180 000001C4 E1A00004        MOV              R0, R4      ; set up parameters
+                                                            
+  181 000001C8 E1A01006        MOV              R1, R6      ;
+  182 000001CC E3A03000        MOV              R3, #0      ; checkRow = false
+  183 000001D0 EB000006        BL               isValidRowAndCol 
+                                                            ; check columns
+  184 000001D4         
+
+
+
+ARM Macro Assembler    Page 5 
+
+
+  185 000001D4 E3500000        CMP              R0, #0      ; if invalid end
+  186 000001D8 1A000003        BNE              endIsValid
+  187 000001DC         
+  188 000001DC E1A00004        MOV              R0, R4      ; set up parameters
+                                                            
+  189 000001E0 E1A01005        MOV              R1, R5      ;
+  190 000001E4 E1A02006        MOV              R2, R6      ;  
+  191 000001E8 EB000021        BL               isValidBox  ; check 3x3 grid
+  192 000001EC         
+  193 000001EC         endIsValid
+  194 000001EC E8BD80F0        LDMFD            SP!, {R4-R7, pc} ;
+  195 000001F0         
+  196 000001F0         
+  197 000001F0         
+  198 000001F0         ; row and column is valid subroutine
+  199 000001F0         ; returns R0 = 0 (true) / R0 = 1 (false)
+  200 000001F0         ; parameters R0 = starting address of grid, R1 = to chec
+                       k row / to check column
+  201 000001F0         isValidRowAndCol
+  202 000001F0 E92D5FF0        STMFD            SP!, {R4-R12,LR} ;
+  203 000001F4 E1A04000        MOV              R4, R0      ; address of grid
+  204 000001F8 E1A0C003        MOV              R12, R3     ; store true/false
+  205 000001FC E1A05001        MOV              R5, R1      ; row/column number
+                                                            
+  206 00000200         
+  207 00000200 E59FA554        LDR              R10, =arrayForUnique 
+                                                            ; tmpArray address
+  208 00000204 E3A0B000        MOV              R11, #0     ; amount of values 
+                                                            to be stored in tmp
+                                                            Array
+  209 00000208         
+  210 00000208 E3A06000        MOV              R6, #0      ; column/row number
+                                                            
+  211 0000020C E3A07000        MOV              R7, #0      ; column/row counte
+                                                            r
+  212 00000210         
+  213 00000210         forGettingRowAndColArray
+  214 00000210 E2877001        ADD              R7, R7, #1  ; column/row counte
+                                                            r++
+  215 00000214 E3570009        CMP              R7, #9      ; while (column/row
+                                                             counter != 9){
+  216 00000218 CA000011        BGT              checkArray
+  217 0000021C         
+  218 0000021C E35C0001        CMP              R12, #1     ; if (checkRow == t
+                                                            rue){
+  219 00000220 1A000004        BNE              columnOne   ;
+  220 00000224 E1A00004        MOV              R0, R4      ; grid address
+  221 00000228 E1A01005        MOV              R1, R5      ; column number
+  222 0000022C E1A02006        MOV              R2, R6      ; row number
+  223 00000230 EBFFFFBA        BL               getSquare   ; get element at th
+                                                            ose coordinates
+  224 00000234 EA000003        B                continueChecking ; } 
+  225 00000238         
+  226 00000238         columnOne                            ; else if (checkRow
+                                                             == false){
+  227 00000238 E1A00004        MOV              R0, R4      ; grid address
+  228 0000023C E1A01006        MOV              R1, R6      ; row number
+  229 00000240 E1A02005        MOV              R2, R5      ; column number
+  230 00000244 EBFFFFB5        BL               getSquare   ; get element at th
+
+
+
+ARM Macro Assembler    Page 6 
+
+
+                                                            ose coordinates }
+  231 00000248         
+  232 00000248         continueChecking
+  233 00000248 E2866001        ADD              R6, R6, #1  ; column/row number
+                                                            ++
+  234 0000024C E1A09003        MOV              R9, R3      ; get element
+  235 00000250 E3590000        CMP              R9, #0      ; if (element != 0)
+                                                            {
+  236 00000254 0AFFFFED        BEQ              forGettingRowAndColArray
+  237 00000258 E28BB001        ADD              R11, R11, #1 ; amount of values
+                                                             in tmpArray++
+  238 0000025C E4CA9001        STRB             R9, [R10], #1 ; store element }
+                                                            
+  239 00000260 EAFFFFEA        B                forGettingRowAndColArray ; }
+  240 00000264         
+  241 00000264         checkArray
+  242 00000264 E59F04F0        LDR              R0, =arrayForUnique ; tmpArray 
+                                                            address into parame
+                                                            ter
+  243 00000268 E1A0100B        MOV              R1, R11     ; amount of values 
+                                                            in tmpArray into pa
+                                                            rameter
+  244 0000026C EB000038        BL               compare     ; compare subroutin
+                                                            e
+  245 00000270 E8BD9FF0        LDMFD            SP!, {R4-R12, PC}
+  246 00000274         
+  247 00000274         
+  248 00000274         ; box subroutine
+  249 00000274         ; returns R0 = 0 (true) / R0 = 1 (false)
+  250 00000274         ; parameters R0 = starting address of grid, R1 = current
+                        row; R2 = current column
+  251 00000274         isValidBox
+  252 00000274 E92D4070        STMFD            SP!,{R4-R6,LR} ;
+  253 00000278 E1A04000        MOV              R4, R0      ; starting address 
+                                                            of grid
+  254 0000027C E1A05001        MOV              R5, R1      ; row coordinate
+  255 00000280 E1A06002        MOV              R6, R2      ; column coordinate
+                                                            
+  256 00000284         
+  257 00000284 E1A01005        MOV              R1, R5      ; set up parameter
+  258 00000288 EB000008        BL               getCoordinate ;
+  259 0000028C E1A05001        MOV              R5, R1      ; return x
+  260 00000290         
+  261 00000290 E1A01006        MOV              R1, R6      ; set up parameter
+  262 00000294 EB000005        BL               getCoordinate ;
+  263 00000298 E1A06001        MOV              R6, R1      ; return y
+  264 0000029C         
+  265 0000029C E1A00004        MOV              R0, R4      ; set up parameters
+                                                            , address of grid
+  266 000002A0 E1A01005        MOV              R1, R5      ; x
+  267 000002A4 E1A02006        MOV              R2, R6      ; y
+  268 000002A8 EB000009        BL               isUniqueBox ; 
+  269 000002AC E8BD8070        LDMFD            sp!,{R4-R6,pc} ;
+  270 000002B0         
+  271 000002B0         
+  272 000002B0         ; get the coordinates to check 3x3 box subroutine
+  273 000002B0         ; return R1 = coordinate 
+  274 000002B0         ; parameters R1 = x or y coordinate of position of eleme
+                       nt being placed
+
+
+
+ARM Macro Assembler    Page 7 
+
+
+  275 000002B0         getCoordinate
+  276 000002B0 E92D4030        STMFD            SP!, {R4, R5, LR} ; 
+  277 000002B4 E1A04001        MOV              R4, R1      ; x or y coordinate
+                                                             of position of ele
+                                                            ment being placed
+  278 000002B8 E3E05002        MOV              R5, #-3     ; quoient counter
+  279 000002BC         
+  280 000002BC         loop                                 ;do {
+  281 000002BC E2855003        ADD              R5, R5, #3  ; counter+=3
+  282 000002C0 E2444003        SUB              R4, R4, #3  ; coordinate=-3 }
+  283 000002C4 E3540000        CMP              R4, #0      ; while (coordinate
+                                                             > 0)
+  284 000002C8 AAFFFFFB        BGE              loop
+  285 000002CC         
+  286 000002CC E1A01005        MOV              R1, R5      ; set up coordinate
+                                                            
+  287 000002D0 E8BD8030        LDMFD            SP!, {R4, R5, PC}
+  288 000002D4         
+  289 000002D4         
+  290 000002D4         ; unique box subroutine
+  291 000002D4         ; returns void
+  292 000002D4         ; parameters R0 = starting address of grid
+  293 000002D4         isUniqueBox
+  294 000002D4 E92D5FF0        STMFD            sp!, {R4-R12,lr} ;
+  295 000002D8 E1A0C000        MOV              R12, R0     ; address of grid
+  296 000002DC E1A04001        MOV              R4, R1      ; x
+  297 000002E0 E1A05002        MOV              R5, R2      ; y
+  298 000002E4 E1A06002        MOV              R6, R2      ; y
+  299 000002E8 E3A07000        MOV              R7, #0      ; row counter == 0
+  300 000002EC E59F9468        LDR              R9, =arrayForUnique ;
+  301 000002F0 E3A0B000        MOV              R11, #0     ; tmp array counter
+                                                            
+  302 000002F4         
+  303 000002F4         forRowUnique
+  304 000002F4 E3570003        CMP              R7, #3      ; if (row counter !
+                                                            = 3){
+  305 000002F8 0A000011        BEQ              endOfGettingArray ; 
+  306 000002FC E1A05006        MOV              R5, R6      ; reset y
+  307 00000300 E3A08000        MOV              R8, #0      ; column counter ==
+                                                             0 }
+  308 00000304         
+  309 00000304         checkCol
+  310 00000304 E3580003        CMP              R8, #3      ; if (column counte
+                                                            r != 3){
+  311 00000308 1A000002        BNE              forColUnique ; 
+  312 0000030C E2877001        ADD              R7, R7, #1  ; row counter++
+  313 00000310 E2844001        ADD              R4, R4, #1  ; x++ 
+  314 00000314 EAFFFFF6        B                forRowUnique ; 
+  315 00000318         
+  316 00000318         forColUnique
+  317 00000318 E1A0000C        MOV              R0, R12     ; set parameters, a
+                                                            ddress of grid
+  318 0000031C E1A01004        MOV              R1, R4      ; x
+  319 00000320 E1A02005        MOV              R2, R5      ; y
+  320 00000324 EBFFFF7D        BL               getSquare   ;
+  321 00000328 E2855001        ADD              R5, R5, #1  ; column counter++
+  322 0000032C E3530000        CMP              R3, #0      ; if (element at sq
+                                                            uare coordinates !=
+                                                             0){
+
+
+
+ARM Macro Assembler    Page 8 
+
+
+  323 00000330 0A000001        BEQ              cont
+  324 00000334 E28BB001        ADD              R11, R11, #1 ; tmp array counte
+                                                            r++
+  325 00000338 E4C93001        STRB             R3, [R9], #1 ; element stored i
+                                                            n tmp array }
+  326 0000033C         
+  327 0000033C         cont
+  328 0000033C E2888001        ADD              R8, R8, #1  ; column counter++ 
+                                                            }
+  329 00000340 EAFFFFEF        B                checkCol    ;
+  330 00000344         
+  331 00000344         endOfGettingArray
+  332 00000344 E59F0410        LDR              R0, =arrayForUnique ; set param
+                                                            eters, tmp array ad
+                                                            dress
+  333 00000348 E1A0100B        MOV              R1, R11     ; length of array
+  334 0000034C EB000000        BL               compare
+  335 00000350         
+  336 00000350         endOfUnique
+  337 00000350 E8BD9FF0        LDMFD            sp!,{R4-R12,pc} ;
+  338 00000354         
+  339 00000354         
+  340 00000354         ; unique array subroutine
+  341 00000354         ; returns R0 = 0 (true) / R0 = 1 (false)
+  342 00000354         ; parameters R0 = starting address of tmpArray, R1 = num
+                       ber of values in tmpArray
+  343 00000354         compare
+  344 00000354 E92D47F0        STMFD            sp!,{R4-R10,lr} ; 
+  345 00000358 E1A04000        MOV              R4, R0      ; tmp array grid ad
+                                                            dress
+  346 0000035C E1A05001        MOV              R5, R1      ; length of array
+  347 00000360 E1A0A005        MOV              R10, R5     ; length of array
+  348 00000364 E3A00000        MOV              R0, #0      ; return value
+  349 00000368 E3A09000        MOV              R9, #0      ; counter
+  350 0000036C         
+  351 0000036C         whileArrayUnique
+  352 0000036C E4D47001        LDRB             R7, [R4], #1 ; load digit to be
+                                                             checked against
+  353 00000370 E3A06000        MOV              R6, #0      ; counter
+  354 00000374 E2455001        SUB              R5, R5, #1  ; length of array--
+                                                            
+  355 00000378 E3550000        CMP              R5, #0      ; if (length of arr
+                                                            ay > 0){
+  356 0000037C 0A000007        BEQ              endOfCompare
+  357 00000380         
+  358 00000380         forArrayCheck
+  359 00000380 E7D48006        LDRB             R8, [R4, R6] ; load digit to be
+                                                             checked
+  360 00000384 E2866001        ADD              R6, R6, #1  ; counter++
+  361 00000388 E1570008        CMP              R7, R8      ; if (digit to be c
+                                                            hecked against != d
+                                                            igit to be checked)
+                                                            {
+  362 0000038C 0A000002        BEQ              invalid     ; } 
+  363 00000390 E1560005        CMP              R6, R5      ; if (counter != le
+                                                            ngth of array){
+  364 00000394 0AFFFFF4        BEQ              whileArrayUnique ; }
+  365 00000398 EAFFFFF8        B                forArrayCheck ; }
+  366 0000039C         
+
+
+
+ARM Macro Assembler    Page 9 
+
+
+  367 0000039C         invalid
+  368 0000039C E3A00001        MOV              R0, #1      ; isValid = false
+  369 000003A0         
+  370 000003A0         ; resets tmp array back to 0
+  371 000003A0         endOfCompare
+  372 000003A0 E59F43B4        LDR              R4, =arrayForUnique ; load tmp 
+                                                            array address
+  373 000003A4 E1A0500A        MOV              R5, R10     ; length of array
+  374 000003A8 E3A06000        MOV              R6, #0      ; element to replac
+                                                            e 
+  375 000003AC         
+  376 000003AC         forSetArray                          ; do {
+  377 000003AC E4C46001        STRB             R6, [R4], #1 ; store 0 in tmp a
+                                                            rray
+  378 000003B0 E2455001        SUB              R5, R5, #1  ; length of array--
+                                                             }
+  379 000003B4 E3550000        CMP              R5, #0      ; while (length of 
+                                                            array > 0)
+  380 000003B8 1AFFFFFB        BNE              forSetArray ;  
+  381 000003BC E8BD87F0        LDMFD            sp!,{R4-R10,pc} ; 
+  382 000003C0         
+  383 000003C0         
+  384 000003C0         ; taking inputs subroutine
+  385 000003C0         ; returns void
+  386 000003C0         ; parameters R0 = address of grid, R1 = amount of origna
+                       l coordinates
+  387 000003C0         takeInputs
+  388 000003C0 E92D41F0        STMFD            SP!, {R4-R8,LR} ;
+  389 000003C4 E1A04000        MOV              R4, R0      ; address of grid
+  390 000003C8 E1A08001        MOV              R8, R1      ; amount of origina
+                                                            l coordinates
+  391 000003CC         
+  392 000003CC         continueToTakeInputs
+  393 000003CC E3A00013        MOV              R0, #0x13   ; move cursor to bo
+                                                            ttom right of grid
+  394 000003D0 E3A01013        MOV              R1, #0x13   ; 
+  395 000003D4 EBFFFFFE        BL               setCursorPosition ; 
+  396 000003D8 EBFFFFFE        BL               getkey      ; get input
+  397 000003DC EB000028        BL               getUserCoordinates 
+                                                            ; get x coordinate
+  398 000003E0 E350000A        CMP              R0, #10     ; if (result == 10)
+                                                            {
+  399 000003E4 0A00001F        BEQ              endAndSolve ; check grid soluti
+                                                            on}
+  400 000003E8 E1A05000        MOV              R5, R0      ; R5 = x
+  401 000003EC EBFFFFFE        BL               getkey      ; get input
+  402 000003F0 EB000023        BL               getUserCoordinates 
+                                                            ; get y coordinate
+  403 000003F4 E350000A        CMP              R0, #10     ; if (result == 10)
+                                                            {
+  404 000003F8 0A00001A        BEQ              endAndSolve ; check grid soluti
+                                                            on}
+  405 000003FC E1A06000        MOV              R6, R0      ; R6 = y
+  406 00000400 E1A01005        MOV              R1, R5      ;
+  407 00000404 E1A02006        MOV              R2, R6      ;
+  408 00000408 E1A03008        MOV              R3, R8      ;
+  409 0000040C EB000023        BL               isNotOriginalCoordinate
+  410 00000410 E3500001        CMP              R0, #1
+  411 00000414 0AFFFFEC        BEQ              continueToTakeInputs
+
+
+
+ARM Macro Assembler    Page 10 
+
+
+  412 00000418         
+  413 00000418 EBFFFFFE        BL               getkey      ; get input
+  414 0000041C E350006E        CMP              R0, #'n'    ; if (input == n){
+  415 00000420 0A000010        BEQ              endAndSolve ; check grid soluti
+                                                            on}
+  416 00000424         
+  417 00000424 EBFFFFFE        BL               sendchar    ; 
+  418 00000428 E1A07000        MOV              R7, R0      ; 
+  419 0000042C E2477030        SUB              R7, R7, #'0' ; number to be pla
+                                                            ced - 0x30
+  420 00000430         
+  421 00000430 E1A01005        MOV              R1, R5      ; x
+  422 00000434 E1A02006        MOV              R2, R6      ; y
+  423 00000438 E1A03007        MOV              R3, R7      ; number to be plac
+                                                            ed
+  424 0000043C E1A00004        MOV              R0, R4      ; grid address
+  425 00000440 EBFFFF41        BL               setSquare   ; put number in squ
+                                                            are
+  426 00000444         
+  427 00000444 E2855001        ADD              R5, R5, #1  ; converting x to c
+                                                            onsole coordinates
+  428 00000448 E0850005        ADD              R0, R5, R5  ; 
+  429 0000044C         
+  430 0000044C E2866001        ADD              R6, R6, #1  ; converting y to c
+                                                            onsole coordinates
+  431 00000450 E0861006        ADD              R1, R6, R6  ; 
+  432 00000454 EBFFFFFE        BL               setCursorPosition ; set cursor 
+                                                            position
+  433 00000458 E2877030        ADD              R7, R7, #'0' ; number to be pla
+                                                            ced + 0x30
+  434 0000045C E1A00007        MOV              R0, R7      ; 
+  435 00000460 EBFFFFFE        BL               sendchar    ; send number to co
+                                                            nsole
+  436 00000464 EAFFFFD8        B                continueToTakeInputs ; 
+  437 00000468         
+  438 00000468         endAndSolve
+  439 00000468 E3A0000A        MOV              R0, #0x0A   ; 
+  440 0000046C EBFFFFFE        BL               sendchar    ; next line
+  441 00000470 E1A00004        MOV              R0, R4      ; set up parameters
+                                                            , grid address
+  442 00000474 E3A01000        MOV              R1, #0      ; x = 0
+  443 00000478 E3A02000        MOV              R2, #0      ; y = 0
+  444 0000047C EB00001C        BL               sudoku      ; check the solutio
+                                                            n
+  445 00000480 E8BD81F0        LDMFD            SP!, {R4-R8, PC}
+  446 00000484         
+  447 00000484         
+  448 00000484         ; convert ascii coordinates to decimal subroutine
+  449 00000484         ; return R0 = coordinate in decimal
+  450 00000484         ; parameters R0 = coordinate
+  451 00000484         getUserCoordinates
+  452 00000484 E92D4000        STMFD            SP!, {LR}   ;
+  453 00000488 EBFFFFFE        BL               sendchar    ; 
+  454 0000048C E2400041        SUB              R0, R0, #0x41 ; ascii higher ca
+                                                            se letter to decima
+                                                            l
+  455 00000490 E3500009        CMP              R0, #9      ; if (number > 8){
+  456 00000494 BA000000        BLT              endOfGettingUserCoordinates ;
+  457 00000498         
+
+
+
+ARM Macro Assembler    Page 11 
+
+
+  458 00000498         sendUserWantingSolve                 ;
+  459 00000498 E3A0000A        MOV              R0, #10     ; return 10 }
+  460 0000049C         
+  461 0000049C         endOfGettingUserCoordinates
+  462 0000049C E8BD8000        LDMFD            SP!, {PC}
+  463 000004A0         
+  464 000004A0         
+  465 000004A0         ; check x/y arrays with x/y user coordinates subroutine
+  466 000004A0         ; returns R0 = 0 (true) / R0 = 1 (false)
+  467 000004A0         ; parameters R1 = user x, R2 = user y
+  468 000004A0         isNotOriginalCoordinate
+  469 000004A0 E92D4FF0        STMFD            SP!, {R4-R11, LR}
+  470 000004A4 E1A04001        MOV              R4, R1      ; user x
+  471 000004A8 E1A05002        MOV              R5, R2      ; user y
+  472 000004AC E1A06003        MOV              R6, R3      ; amount of origina
+                                                            l coordinates
+  473 000004B0 E59F72A8        LDR              R7, =tmpArrayX 
+                                                            ; original x values
+                                                            
+  474 000004B4 E59F82A8        LDR              R8, =tmpArrayY 
+                                                            ; original y values
+                                                            
+  475 000004B8 E3E09000        MOV              R9, #-1     ; index
+  476 000004BC E3A0B001        MOV              R11, #1     ; result = false
+  477 000004C0         
+  478 000004C0         forNotOriginalCoordinateX            ; for (index = -1; 
+                                                            index < 9; index++)
+                                                             {
+  479 000004C0 E2899001        ADD              R9, R9, #1  ; 
+  480 000004C4 E1590006        CMP              R9, R6      ; 
+  481 000004C8 0A000006        BEQ              preEndOfNotOriginalCoordinate 
+                                                            ; 
+  482 000004CC E7D7A009        LDRB             R10, [R7, R9] ; load original x
+                                                             at position index
+  483 000004D0 E15A0004        CMP              R10, R4     ; if (original x ==
+                                                             user x) {
+  484 000004D4 1AFFFFF9        BNE              forNotOriginalCoordinateX
+  485 000004D8         
+  486 000004D8         checkNotOriginalCoordinateY
+  487 000004D8 E7D8A009        LDRB             R10, [R8, R9] ; load original y
+                                                             at position index
+  488 000004DC E15A0002        CMP              R10, R2     ; if (original y !=
+                                                             user y) {
+  489 000004E0 0A000001        BEQ              endOfNotOriginalCoordinate ; co
+                                                            ntinue with for loo
+                                                            p }
+  490 000004E4 EAFFFFF5        B                forNotOriginalCoordinateX ; }
+  491 000004E8         
+  492 000004E8         preEndOfNotOriginalCoordinate        ; 
+  493 000004E8 E3A0B000        MOV              R11, #0     ; result = true
+  494 000004EC         
+  495 000004EC         endOfNotOriginalCoordinate
+  496 000004EC E1A0000B        MOV              R0, R11     ; return result
+  497 000004F0 E8BD8FF0        LDMFD            SP!, {R4-R11, PC} ;  
+  498 000004F4         
+  499 000004F4         
+  500 000004F4         ; sudoku solver subroutine
+  501 000004F4         ; returns R0 = 0 (true) / R0 = 1 (false)
+  502 000004F4         ; parameters R0 = grid address, R1 = x, R2 = y, R3 = cou
+
+
+
+ARM Macro Assembler    Page 12 
+
+
+                       nter in for loop
+  503 000004F4         sudoku
+  504 000004F4 E92D53F0        STMFD            SP!, {R4-R9,R12,LR}
+  505 000004F8 E1A04000        MOV              R4, R0      ; grid address
+  506 000004FC E1A05001        MOV              R5, R1      ; next x
+  507 00000500 E1A06002        MOV              R6, R2      ; next y
+  508 00000504 E1A09003        MOV              R9, R3      ; set counter in fo
+                                                            r loop to 0
+  509 00000508 E3A0C001        MOV              R12, #1     ; result = FALSE
+  510 0000050C         
+  511 0000050C E1A07005        MOV              R7, R5      ; next row = row
+  512 00000510 E2868001        ADD              R8, R6, #1  ; next column = col
+                                                            umn++ 
+  513 00000514 E3580009        CMP              R8, #9      ; if (next column >
+                                                             8){
+  514 00000518 1A000001        BNE              continueOn  ; 
+  515 0000051C E3A08000        MOV              R8, #0      ; next column = 0
+  516 00000520 E2877001        ADD              R7, R7, #1  ; next row++}
+  517 00000524         
+  518 00000524         continueOn
+  519 00000524 E1A00004        MOV              R0, R4      ; set parameters, g
+                                                            rid address
+  520 00000528 E1A01005        MOV              R1, R5      ; x
+  521 0000052C E1A02006        MOV              R2, R6      ; y
+  522 00000530 EBFFFEFA        BL               getSquare   ; 
+  523 00000534 E3530000        CMP              R3, #0      ; if (element != 0)
+                                                            {
+  524 00000538 0A00000C        BEQ              elseIfZero  ; 
+  525 0000053C         
+  526 0000053C E3550008        CMP              R5, #8      ; if (row == 8 && c
+                                                            olumn == 8){
+  527 00000540 1A000004        BNE              elseIfNotEnd
+  528 00000544 E3560008        CMP              R6, #8      ; 
+  529 00000548 1A000002        BNE              elseIfNotEnd
+  530 0000054C         
+  531 0000054C E3A0C000        MOV              R12, #0     ; result = true
+  532 00000550 E1A0000C        MOV              R0, R12     ; 
+  533 00000554 EA00002D        B                trueEndOfSudoku ; end}
+  534 00000558         
+  535 00000558         elseIfNotEnd                         ; else {
+  536 00000558 E1A00004        MOV              R0, R4      ; set parameters, g
+                                                            rid address
+  537 0000055C E1A01007        MOV              R1, R7      ; next row
+  538 00000560 E1A02008        MOV              R2, R8      ; next column
+  539 00000564 E3A03000        MOV              R3, #0      ; for counter = 0
+  540 00000568 EBFFFFE1        BL               sudoku      ; recursion}
+  541 0000056C EA000025        B                endOfSudoku
+  542 00000570         
+  543 00000570         
+  544 00000570         elseIfZero
+  545 00000570 E35C0000        CMP              R12, #0     ; if (result == fal
+                                                            se){
+  546 00000574 0A000019        BEQ              endOfForLoop
+  547 00000578 E3500000        CMP              R0, #0      ;  
+  548 0000057C 0A000017        BEQ              endOfForLoop
+  549 00000580 E2899001        ADD              R9, R9, #1  ; for counter++
+  550 00000584 E3590009        CMP              R9, #9      ;  if (for counter 
+                                                            <= 9){
+  551 00000588 CA000014        BGT              endOfForLoop
+
+
+
+ARM Macro Assembler    Page 13 
+
+
+  552 0000058C E1A00004        MOV              R0, R4      ; set parameters, g
+                                                            rid address
+  553 00000590 E1A01005        MOV              R1, R5      ; next row
+  554 00000594 E1A02006        MOV              R2, R6      ; next column
+  555 00000598 E1A03009        MOV              R3, R9      ; keep track of the
+                                                             for counter
+  556 0000059C EBFFFEEA        BL               setSquare   ; set square
+  557 000005A0 EBFFFEFD        BL               isValidAll  ; check if that is 
+                                                            valid
+  558 000005A4 E3500001        CMP              R0, #1      ; if (valid){
+  559 000005A8 0AFFFFF0        BEQ              elseIfZero
+  560 000005AC         
+  561 000005AC E3550008        CMP              R5, #8      ; see if end
+  562 000005B0 1A000004        BNE              elseIfNotEnd2
+  563 000005B4 E3560008        CMP              R6, #8      ; 
+  564 000005B8 1A000002        BNE              elseIfNotEnd2
+  565 000005BC E3A0C000        MOV              R12, #0     ; if (end){
+  566 000005C0 E1A0000C        MOV              R0, R12     ; result = true
+  567 000005C4 EA000011        B                trueEndOfSudoku ; }
+  568 000005C8         
+  569 000005C8         elseIfNotEnd2                        ; else {
+  570 000005C8 E1A00004        MOV              R0, R4      ; set parameters, g
+                                                            rid address
+  571 000005CC E1A01007        MOV              R1, R7      ; next row
+  572 000005D0 E1A02008        MOV              R2, R8      ; next column
+  573 000005D4 E3A03000        MOV              R3, #0      ; for counter = 0
+  574 000005D8 EBFFFFC5        BL               sudoku      ; recursion}
+  575 000005DC EAFFFFE3        B                elseIfZero
+  576 000005E0         
+  577 000005E0         endOfForLoop
+  578 000005E0 E35C0000        CMP              R12, #0     ; if (result != tru
+                                                            e){
+  579 000005E4 0A000007        BEQ              endOfSudoku
+  580 000005E8 E3500000        CMP              R0, #0      ; 
+  581 000005EC 0A000005        BEQ              endOfSudoku
+  582 000005F0 E3A09000        MOV              R9, #0      ; for counter = 0
+  583 000005F4 E1A00004        MOV              R0, R4      ; set parameters, g
+                                                            rid address  
+  584 000005F8 E1A01005        MOV              R1, R5      ; row
+  585 000005FC E1A02006        MOV              R2, R6      ; column
+  586 00000600 E3A03000        MOV              R3, #0      ; number to be plac
+                                                            ed
+  587 00000604 EBFFFED0        BL               setSquare   ; backtrack and set
+                                                             that square to 0}
+  588 00000608         
+  589 00000608         endOfSudoku
+  590 00000608 E1A0C000        MOV              R12, R0     ; save result (true
+                                                            /false)
+  591 0000060C E8BD93F0        LDMFD            SP!, {R4-R9,R12, PC}
+  592 00000610         
+  593 00000610         trueEndOfSudoku
+  594 00000610 E8BD93F0        LDMFD            SP!, {R4-R9,R12, PC}
+  595 00000614         
+  596 00000614         
+  597 00000614         ; display grid subroutine
+  598 00000614         ; returns void
+  599 00000614         ; paramaters R0 = grid address
+  600 00000614         display
+  601 00000614 E92D41F0        STMFD            SP!, {R4-R8, LR}
+
+
+
+ARM Macro Assembler    Page 14 
+
+
+  602 00000618 E1A04000        MOV              R4, R0      ; 
+  603 0000061C E3A07000        MOV              R7, #0      ; row counter = 0
+  604 00000620         
+  605 00000620         forRowDisplay
+  606 00000620 E3A08000        MOV              R8, #0      ; 
+  607 00000624 E59F513C        LDR              R5, =gridLinesH ; load horizont
+                                                            al grid lines
+  608 00000628 E59F613C        LDR              R6, =gridLinesV ; load vertical
+                                                             grid lines
+  609 0000062C E3570000        CMP              R7, #0      ; 
+  610 00000630 0A000006        BEQ              preForColDisplay ; 
+  611 00000634 E3A0000A        MOV              R0, #0x0A   ; 
+  612 00000638 EBFFFFFE        BL               sendchar
+  613 0000063C         
+  614 0000063C         whileDisplayingRow                   ; while (char != 0)
+                                                            { 
+  615 0000063C E4D50001        LDRB             R0, [R5], #1 ; load char at hor
+                                                            izontal grid line a
+                                                            ddress
+  616 00000640 E3500000        CMP              R0, #0      ; display char
+  617 00000644 0A000001        BEQ              preForColDisplay ;
+  618 00000648 EBFFFFFE        BL               sendchar    ;
+  619 0000064C EAFFFFFA        B                whileDisplayingRow ; }
+  620 00000650         
+  621 00000650         preForColDisplay
+  622 00000650 E3A0000A        MOV              R0, #0x0A   ;
+  623 00000654 EBFFFFFE        BL               sendchar    ; new line
+  624 00000658         forColDisplay                        ; do {
+  625 00000658 E4D60001        LDRB             R0, [R6], #1 ; 
+  626 0000065C EBFFFFFE        BL               sendchar    ; display vertical 
+                                                            line
+  627 00000660 E1A00004        MOV              R0, R4      ; set parameters, g
+                                                            rid address
+  628 00000664 E1A01007        MOV              R1, R7      ; x
+  629 00000668 E1A02008        MOV              R2, R8      ; y
+  630 0000066C EBFFFEAB        BL               getSquare   ; get element at th
+                                                            ose coordinates
+  631 00000670 E1A00003        MOV              R0, R3      ;
+  632 00000674 E2800030        ADD              R0, R0, #'0' ; convert hexadeci
+                                                            mal to ascii
+  633 00000678 EBFFFFFE        BL               sendchar    ; display on consol
+                                                            e
+  634 0000067C E2888001        ADD              R8, R8, #1  ; column counter++ 
+                                                            }
+  635 00000680 E3580009        CMP              R8, #9      ; while (column cou
+                                                            nter != 9)
+  636 00000684 1AFFFFF3        BNE              forColDisplay
+  637 00000688 E2877001        ADD              R7, R7, #1  ; row counter++
+  638 0000068C E3570009        CMP              R7, #9      ; if (row counter !
+                                                            = 9){
+  639 00000690 1AFFFFE2        BNE              forRowDisplay ; new row}
+  640 00000694         
+  641 00000694 E3A0000A        MOV              R0, #0x0A   ; else {
+  642 00000698 EBFFFFFE        BL               sendchar    ; new line
+  643 0000069C E59F50C4        LDR              R5, =gridLinesH ; load horizont
+                                                            al grid lines
+  644 000006A0         whileDisplayingRow2                  ; while (char != 0)
+                                                            { 
+  645 000006A0 E4D50001        LDRB             R0, [R5], #1 ; load char at hor
+
+
+
+ARM Macro Assembler    Page 15 
+
+
+                                                            izontal grid line a
+                                                            ddress
+  646 000006A4 E3500000        CMP              R0, #0      ; 
+  647 000006A8 0A000001        BEQ              endOfDisplay ; 
+  648 000006AC EBFFFFFE        BL               sendchar    ; display char
+  649 000006B0 EAFFFFFA        B                whileDisplayingRow2 ; }
+  650 000006B4         
+  651 000006B4         endOfDisplay
+  652 000006B4 E8BD81F0        LDMFD            SP!, {R4-R8, PC}
+  653 000006B8         
+  654 000006B8         
+  655 000006B8         ; copy grid subroutine
+  656 000006B8         ; returns R0 = amount of coordinates
+  657 000006B8         ; parameters R0 = grid address
+  658 000006B8         copyGrid
+  659 000006B8 E92D47F0        STMFD            SP!, {R4-R10,LR}
+  660 000006BC E1A04000        MOV              R4, R0      ; grid address
+  661 000006C0 E3A05000        MOV              R5, #0      ; x
+  662 000006C4 E3A06000        MOV              R6, #0      ; y
+  663 000006C8 E59F7084        LDR              R7, =tmpGrid ; tmp grid
+  664 000006CC E59F808C        LDR              R8, =tmpArrayX ; 
+  665 000006D0 E59F908C        LDR              R9, =tmpArrayY ; 
+  666 000006D4 E3A0A000        MOV              R10, #0     ; amount of coordin
+                                                            ate values
+  667 000006D8 EA000003        B                startCopying
+  668 000006DC         
+  669 000006DC         increaseX                            ; for (x < 9){
+  670 000006DC E2855001        ADD              R5, R5, #1  ; x++
+  671 000006E0 E3550009        CMP              R5, #9      ; 
+  672 000006E4 0A00000F        BEQ              finishedCopying
+  673 000006E8 E3A06000        MOV              R6, #0      ; y = 0
+  674 000006EC         
+  675 000006EC         startCopying                         ; do {
+  676 000006EC E1A00004        MOV              R0, R4      ; set parameters, g
+                                                            rid address
+  677 000006F0 E1A01005        MOV              R1, R5      ; x
+  678 000006F4 E1A02006        MOV              R2, R6      ; y
+  679 000006F8 EBFFFE88        BL               getSquare   ; get element 
+  680 000006FC E3530000        CMP              R3, #0      ; if (element != 0)
+                                                            {
+  681 00000700 0A000004        BEQ              continueCopying ; 
+  682 00000704 E28AA001        ADD              R10, R10, #1
+  683 00000708 E4C85001        STRB             R5, [R8], #1
+  684 0000070C E4C96001        STRB             R6, [R9], #1
+  685 00000710 E1A00007        MOV              R0, R7      ; set element in tm
+                                                            p grid
+  686 00000714 EBFFFE8C        BL               setSquare   ; }
+  687 00000718         
+  688 00000718         continueCopying
+  689 00000718 E2866001        ADD              R6, R6, #1  ; y++ }
+  690 0000071C E3560009        CMP              R6, #9      ;  
+  691 00000720 0AFFFFED        BEQ              increaseX   ; while (y < 9)
+  692 00000724 EAFFFFF0        B                startCopying ; }
+  693 00000728         
+  694 00000728         finishedCopying
+  695 00000728 E1A0000A        MOV              R0, R10     ;
+  696 0000072C E8BD87F0        LDMFD            SP!, {R4-R10,PC}
+  697 00000730         
+  698 00000730 00000000 
+
+
+
+ARM Macro Assembler    Page 16 
+
+
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+              00000000         AREA             Grids, DATA, READWRITE
+  699 00000000         
+  700 00000000         gridOne
+  701 00000000 07 09 00 
+              00 00 00 
+              03 00 00         DCB              7,9,0,0,0,0,3,0,0
+  702 00000009 00 00 00 
+              00 00 06 
+              09 00 00         DCB              0,0,0,0,0,6,9,0,0
+  703 00000012 08 00 00 
+              00 03 00 
+              00 07 06         DCB              8,0,0,0,3,0,0,7,6
+  704 0000001B 00 00 00 
+              00 00 05 
+              00 00 02         DCB              0,0,0,0,0,5,0,0,2
+  705 00000024 00 00 05 
+              04 01 08 
+              07 00 00         DCB              0,0,5,4,1,8,7,0,0
+  706 0000002D 04 00 00 
+              07 00 00 
+              00 00 00         DCB              4,0,0,7,0,0,0,0,0
+  707 00000036 06 01 00 
+              00 09 00 
+              00 00 08         DCB              6,1,0,0,9,0,0,0,8
+  708 0000003F 00 00 02 
+              03 00 00 
+              00 00 00         DCB              0,0,2,3,0,0,0,0,0
+  709 00000048 00 00 09 
+              00 00 00 
+              00 05 04         DCB              0,0,9,0,0,0,0,5,4
+  710 00000051         
+  711 00000051         gridTwo
+  712 00000051 07 00 00 
+              06 02 00 
+              09 00 00         DCB              7,0,0,6,2,0,9,0,0
+
+
+
+ARM Macro Assembler    Page 17 
+
+
+  713 0000005A 00 00 03 
+              00 09 08 
+              00 00 01         DCB              0,0,3,0,9,8,0,0,1
+  714 00000063 00 09 08 
+              07 00 00 
+              00 06 00         DCB              0,9,8,7,0,0,0,6,0
+  715 0000006C 00 00 07 
+              00 00 00 
+              00 05 00         DCB              0,0,7,0,0,0,0,5,0
+  716 00000075 09 00 00 
+              00 00 00 
+              00 00 04         DCB              9,0,0,0,0,0,0,0,4
+  717 0000007E 00 03 00 
+              00 00 00 
+              01 00 00         DCB              0,3,0,0,0,0,1,0,0
+  718 00000087 00 08 00 
+              00 00 04 
+              02 01 00         DCB              0,8,0,0,0,4,2,1,0
+  719 00000090 01 00 00 
+              09 06 00 
+              03 00 00         DCB              1,0,0,9,6,0,3,0,0
+  720 00000099 00 00 02 
+              00 07 01 
+              00 00 05         DCB              0,0,2,0,7,1,0,0,5
+  721 000000A2         
+  722 000000A2         gridThree
+  723 000000A2 00 02 00 
+              01 00 00 
+              08 00 00         DCB              0,2,0,1,0,0,8,0,0
+  724 000000AB 00 00 09 
+              02 00 00 
+              05 00 00         DCB              0,0,9,2,0,0,5,0,0
+  725 000000B4 08 05 00 
+              00 03 00 
+              00 01 00         DCB              8,5,0,0,3,0,0,1,0
+  726 000000BD 00 00 00 
+              00 00 00 
+              00 04 00         DCB              0,0,0,0,0,0,0,4,0
+  727 000000C6 01 00 00 
+              05 00 09 
+              00 00 02         DCB              1,0,0,5,0,9,0,0,2
+  728 000000CF 00 03 00 
+              00 00 00 
+              00 00 00         DCB              0,3,0,0,0,0,0,0,0
+  729 000000D8 00 09 00 
+              00 06 00 
+              00 05 03         DCB              0,9,0,0,6,0,0,5,3
+  730 000000E1 00 00 04 
+              00 00 03 
+              09 00 00         DCB              0,0,4,0,0,3,9,0,0
+  731 000000EA 00 00 03 
+              00 00 01 
+              00 02 00         DCB              0,0,3,0,0,1,0,2,0
+  732 000000F3         
+  733 000000F3         gridFour
+  734 000000F3 04 00 00 
+              09 00 00 
+              00 00 00         DCB              4,0,0,9,0,0,0,0,0
+  735 000000FC 00 09 00 
+
+
+
+ARM Macro Assembler    Page 18 
+
+
+              00 00 00 
+              00 07 00         DCB              0,9,0,0,0,0,0,7,0
+  736 00000105 00 00 08 
+              00 00 07 
+              01 04 00         DCB              0,0,8,0,0,7,1,4,0
+  737 0000010E 00 00 03 
+              00 05 00 
+              00 00 00         DCB              0,0,3,0,5,0,0,0,0
+  738 00000117 09 00 00 
+              03 01 02 
+              00 00 08         DCB              9,0,0,3,1,2,0,0,8
+  739 00000120 00 00 00 
+              00 08 00 
+              09 00 00         DCB              0,0,0,0,8,0,9,0,0
+  740 00000129 00 03 05 
+              02 00 00 
+              07 00 00         DCB              0,3,5,2,0,0,7,0,0
+  741 00000132 00 04 00 
+              00 00 00 
+              00 06 00         DCB              0,4,0,0,0,0,0,6,0
+  742 0000013B 00 00 00 
+              00 00 01 
+              00 00 02         DCB              0,0,0,0,0,1,0,0,2
+  743 00000144         
+  744 00000144         gridFive
+  745 00000144 00 05 08 
+              00 00 04 
+              03 00 00         DCB              0,5,8,0,0,4,3,0,0
+  746 0000014D 00 00 00 
+              00 00 00 
+              08 00 07         DCB              0,0,0,0,0,0,8,0,7
+  747 00000156 01 09 00 
+              00 07 00 
+              00 00 00         DCB              1,9,0,0,7,0,0,0,0
+  748 0000015F 00 00 03 
+              00 00 08 
+              00 05 00         DCB              0,0,3,0,0,8,0,5,0
+  749 00000168 04 00 00 
+              00 00 00 
+              00 00 09         DCB              4,0,0,0,0,0,0,0,9
+  750 00000171 00 02 00 
+              09 00 00 
+              01 00 00         DCB              0,2,0,9,0,0,1,0,0
+  751 0000017A 00 00 00 
+              00 08 00 
+              00 01 03         DCB              0,0,0,0,8,0,0,1,3
+  752 00000183 06 00 07 
+              00 00 00 
+              00 00 00         DCB              6,0,7,0,0,0,0,0,0
+  753 0000018C 00 00 09 
+              05 00 00 
+              07 02 00         DCB              0,0,9,5,0,0,7,2,0
+  754 00000195         
+  755 00000195         tmpGrid
+  756 00000195 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  757 0000019E 00 00 00 
+              00 00 00 
+
+
+
+ARM Macro Assembler    Page 19 
+
+
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  758 000001A7 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  759 000001B0 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  760 000001B9 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  761 000001C2 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  762 000001CB 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  763 000001D4 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  764 000001DD 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  765 000001E6         
+  766 000001E6         arrayForUnique
+  767 000001E6 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  768 000001EF         
+  769 000001EF         
+  770 000001EF         tmpArrayX
+  771 000001EF 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  772 000001F8 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  773 00000201 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  774 0000020A 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  775 00000213 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  776 0000021C 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  777 00000225 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  778 0000022E         
+  779 0000022E         tmpArrayY
+  780 0000022E 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  781 00000237 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+
+
+
+ARM Macro Assembler    Page 20 
+
+
+  782 00000240 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  783 00000249 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  784 00000252 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  785 0000025B 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  786 00000264 00 00 00 
+              00 00 00 
+              00 00 00         DCB              0,0,0,0,0,0,0,0,0
+  787 0000026D         
+  788 0000026D         gridLinesV
+  789 0000026D 7C 7C 7C 
+              7C 7C 7C 
+              7C 7C 7C 
+              7C 7C 7C 
+              00               DCB              "||||||||||||",0
+  790 0000027A         
+  791 0000027A         gridLinesH
+  792 0000027A 2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              2D 2D 2D 
+              00               DCB              "------------------",0
+  793 0000028D         
+  794 0000028D         greeting
+  795 0000028D 48 65 6C 
+              6C 6F 2C 
+              20 77 68 
+              69 63 68 
+              20 67 72 
+              69 64 20 
+              77 6F 75 
+              6C 64 20 
+              79 6F 75 
+              20 6C 69 
+              6B 65 20 
+              74 6F 20 
+              73 6F 6C 
+              76 65 2F 
+              6C 69 6B 
+              65 20 74 
+              6F 20 73 
+              65 65 20 
+              73 6F 6C 
+              76 65 64 
+              3A 20 31 
+              2C 20 32 
+              2C 20 33 
+              2C 20 34 
+              2C 20 6F 
+              72 20 35 
+
+
+
+ARM Macro Assembler    Page 21 
+
+
+              3F 00            DCB              "Hello, which grid would you li
+ke to solve/like to see solved: 1, 2, 3, 4, or 5?", 0
+  796 000002DD         
+  797 000002DD         query
+  798 000002DD 57 6F 75 
+              6C 64 20 
+              79 6F 75 
+              20 6C 69 
+              6B 65 20 
+              74 6F 20 
+              73 6F 6C 
+              76 65 20 
+              69 74 3F 
+              20 79 2F 
+              6E 00            DCB              "Would you like to solve it? y/
+n",0
+  799 000002FD         
+  800 000002FD         inputSystem
+  801 000002FD 54 68 65 
+              20 63 6F 
+              6F 72 64 
+              69 6E 61 
+              74 65 20 
+              73 79 73 
+              74 65 6D 
+              20 77 6F 
+              72 6B 73 
+              20 61 73 
+              20 66 6F 
+              6C 6C 6F 
+              77 73 3A 
+              20 41 41 
+              20 3D 20 
+              31 2C 31 
+              20 65 74 
+              63 2C 20 
+              41 2D 49 
+              20 61 72 
+              65 20 61 
+              63 63 65 
+              70 74 65 
+              64 20 69 
+              6E 70 75 
+              74 73 2C 
+              20 74 79 
+              70 65 20 
+              27 6E 27 
+              20 74 6F 
+              20 63 68 
+              65 63 6B 
+              20 79 6F 
+              75 72 20 
+              73 6F 6C 
+              75 74 69 
+              6F 6E 00         DCB              "The coordinate system works as
+ follows: AA = 1,1 etc, A-I are accepted inputs, type 'n' to check your solutio
+n",0
+  802 0000036C         
+  803 0000036C         error
+
+
+
+ARM Macro Assembler    Page 22 
+
+
+  804 0000036C 53 6F 72 
+              72 79 20 
+              74 68 61 
+              74 20 69 
+              73 20 6E 
+              6F 74 20 
+              74 68 65 
+              20 63 6F 
+              72 72 65 
+              63 74 20 
+              73 6F 6C 
+              75 74 69 
+              6F 6E 2E 
+              00               DCB              "Sorry that is not the correct 
+solution.",0
+  805 00000394         
+  806 00000394         correct
+  807 00000394 54 68 69 
+              73 20 69 
+              73 20 74 
+              68 65 20 
+              63 6F 72 
+              72 65 63 
+              74 20 73 
+              6F 6C 75 
+              74 69 6F 
+              6E 2E 00         DCB              "This is the correct solution."
+,0
+  808 000003B2         
+  809 000003B2                 END
+Command Line: --debug --xref --apcs=interwork --depend=.\sudoku.d -o.\sudoku.o 
+-IC:\Users\mcnam\Desktop\ARM\RV31\INC -IC:\Users\mcnam\Desktop\ARM\CMSIS\Includ
+e -IC:\Users\mcnam\Desktop\ARM\Inc\Philips --predefine="__EVAL SETA 1" --predef
+ine="__MICROLIB SETA 1" --predefine="NO_CLOCK_SETUP SETA 1" --predefine="NO_EMC
+_SETUP SETA 1" --predefine="RAM_INTVEC SETA 1" --predefine="RAM_MODE SETA 1" --
+predefine="REMAP SETA 1" --list=.\sudoku.lst Sudoku.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+Sudoku 00000000
+
+Symbol: Sudoku
+   Definitions
+      At line 1 in file Sudoku.s
+   Uses
+      None
+Comment: Sudoku unused
+askUser 00000060
+
+Symbol: askUser
+   Definitions
+      At line 51 in file Sudoku.s
+   Uses
+      At line 33 in file Sudoku.s
+      At line 37 in file Sudoku.s
+      At line 41 in file Sudoku.s
+      At line 45 in file Sudoku.s
+      At line 49 in file Sudoku.s
+
+checkArray 00000264
+
+Symbol: checkArray
+   Definitions
+      At line 241 in file Sudoku.s
+   Uses
+      At line 216 in file Sudoku.s
+Comment: checkArray used once
+checkCol 00000304
+
+Symbol: checkCol
+   Definitions
+      At line 309 in file Sudoku.s
+   Uses
+      At line 329 in file Sudoku.s
+Comment: checkCol used once
+checkNotOriginalCoordinateY 000004D8
+
+Symbol: checkNotOriginalCoordinateY
+   Definitions
+      At line 486 in file Sudoku.s
+   Uses
+      None
+Comment: checkNotOriginalCoordinateY unused
+columnOne 00000238
+
+Symbol: columnOne
+   Definitions
+      At line 226 in file Sudoku.s
+   Uses
+      At line 219 in file Sudoku.s
+Comment: columnOne used once
+compare 00000354
+
+Symbol: compare
+   Definitions
+      At line 343 in file Sudoku.s
+   Uses
+      At line 244 in file Sudoku.s
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 334 in file Sudoku.s
+
+cont 0000033C
+
+Symbol: cont
+   Definitions
+      At line 327 in file Sudoku.s
+   Uses
+      At line 323 in file Sudoku.s
+Comment: cont used once
+continueChecking 00000248
+
+Symbol: continueChecking
+   Definitions
+      At line 232 in file Sudoku.s
+   Uses
+      At line 224 in file Sudoku.s
+Comment: continueChecking used once
+continueCopying 00000718
+
+Symbol: continueCopying
+   Definitions
+      At line 688 in file Sudoku.s
+   Uses
+      At line 681 in file Sudoku.s
+Comment: continueCopying used once
+continueOn 00000524
+
+Symbol: continueOn
+   Definitions
+      At line 518 in file Sudoku.s
+   Uses
+      At line 514 in file Sudoku.s
+Comment: continueOn used once
+continueToTakeInputs 000003CC
+
+Symbol: continueToTakeInputs
+   Definitions
+      At line 392 in file Sudoku.s
+   Uses
+      At line 411 in file Sudoku.s
+      At line 436 in file Sudoku.s
+
+copyGrid 000006B8
+
+Symbol: copyGrid
+   Definitions
+      At line 658 in file Sudoku.s
+   Uses
+      At line 63 in file Sudoku.s
+Comment: copyGrid used once
+display 00000614
+
+Symbol: display
+   Definitions
+      At line 600 in file Sudoku.s
+   Uses
+      At line 69 in file Sudoku.s
+      At line 94 in file Sudoku.s
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 106 in file Sudoku.s
+
+displayString 00000178
+
+Symbol: displayString
+   Definitions
+      At line 148 in file Sudoku.s
+   Uses
+      At line 13 in file Sudoku.s
+      At line 55 in file Sudoku.s
+      At line 67 in file Sudoku.s
+      At line 86 in file Sudoku.s
+      At line 98 in file Sudoku.s
+      At line 104 in file Sudoku.s
+
+displayStringLoop 00000180
+
+Symbol: displayStringLoop
+   Definitions
+      At line 152 in file Sudoku.s
+   Uses
+      At line 158 in file Sudoku.s
+Comment: displayStringLoop used once
+elseIfNotEnd 00000558
+
+Symbol: elseIfNotEnd
+   Definitions
+      At line 535 in file Sudoku.s
+   Uses
+      At line 527 in file Sudoku.s
+      At line 529 in file Sudoku.s
+
+elseIfNotEnd2 000005C8
+
+Symbol: elseIfNotEnd2
+   Definitions
+      At line 569 in file Sudoku.s
+   Uses
+      At line 562 in file Sudoku.s
+      At line 564 in file Sudoku.s
+
+elseIfZero 00000570
+
+Symbol: elseIfZero
+   Definitions
+      At line 544 in file Sudoku.s
+   Uses
+      At line 524 in file Sudoku.s
+      At line 559 in file Sudoku.s
+      At line 575 in file Sudoku.s
+
+endAndSolve 00000468
+
+Symbol: endAndSolve
+   Definitions
+      At line 438 in file Sudoku.s
+   Uses
+      At line 399 in file Sudoku.s
+      At line 404 in file Sudoku.s
+
+
+
+ARM Macro Assembler    Page 4 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 415 in file Sudoku.s
+
+endDisplayString 00000198
+
+Symbol: endDisplayString
+   Definitions
+      At line 160 in file Sudoku.s
+   Uses
+      At line 155 in file Sudoku.s
+Comment: endDisplayString used once
+endIsValid 000001EC
+
+Symbol: endIsValid
+   Definitions
+      At line 193 in file Sudoku.s
+   Uses
+      At line 178 in file Sudoku.s
+      At line 186 in file Sudoku.s
+
+endOfCompare 000003A0
+
+Symbol: endOfCompare
+   Definitions
+      At line 371 in file Sudoku.s
+   Uses
+      At line 356 in file Sudoku.s
+Comment: endOfCompare used once
+endOfDisplay 000006B4
+
+Symbol: endOfDisplay
+   Definitions
+      At line 651 in file Sudoku.s
+   Uses
+      At line 647 in file Sudoku.s
+Comment: endOfDisplay used once
+endOfForLoop 000005E0
+
+Symbol: endOfForLoop
+   Definitions
+      At line 577 in file Sudoku.s
+   Uses
+      At line 546 in file Sudoku.s
+      At line 548 in file Sudoku.s
+      At line 551 in file Sudoku.s
+
+endOfGettingArray 00000344
+
+Symbol: endOfGettingArray
+   Definitions
+      At line 331 in file Sudoku.s
+   Uses
+      At line 305 in file Sudoku.s
+Comment: endOfGettingArray used once
+endOfGettingUserCoordinates 0000049C
+
+Symbol: endOfGettingUserCoordinates
+   Definitions
+      At line 461 in file Sudoku.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 5 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 456 in file Sudoku.s
+Comment: endOfGettingUserCoordinates used once
+endOfNotOriginalCoordinate 000004EC
+
+Symbol: endOfNotOriginalCoordinate
+   Definitions
+      At line 495 in file Sudoku.s
+   Uses
+      At line 489 in file Sudoku.s
+Comment: endOfNotOriginalCoordinate used once
+endOfSudoku 00000608
+
+Symbol: endOfSudoku
+   Definitions
+      At line 589 in file Sudoku.s
+   Uses
+      At line 541 in file Sudoku.s
+      At line 579 in file Sudoku.s
+      At line 581 in file Sudoku.s
+
+endOfUnique 00000350
+
+Symbol: endOfUnique
+   Definitions
+      At line 336 in file Sudoku.s
+   Uses
+      None
+Comment: endOfUnique unused
+finishedCopying 00000728
+
+Symbol: finishedCopying
+   Definitions
+      At line 694 in file Sudoku.s
+   Uses
+      At line 672 in file Sudoku.s
+Comment: finishedCopying used once
+forArrayCheck 00000380
+
+Symbol: forArrayCheck
+   Definitions
+      At line 358 in file Sudoku.s
+   Uses
+      At line 365 in file Sudoku.s
+Comment: forArrayCheck used once
+forColDisplay 00000658
+
+Symbol: forColDisplay
+   Definitions
+      At line 624 in file Sudoku.s
+   Uses
+      At line 636 in file Sudoku.s
+Comment: forColDisplay used once
+forColUnique 00000318
+
+Symbol: forColUnique
+   Definitions
+      At line 316 in file Sudoku.s
+   Uses
+      At line 311 in file Sudoku.s
+
+
+
+ARM Macro Assembler    Page 6 Alphabetic symbol ordering
+Relocatable symbols
+
+Comment: forColUnique used once
+forGettingRowAndColArray 00000210
+
+Symbol: forGettingRowAndColArray
+   Definitions
+      At line 213 in file Sudoku.s
+   Uses
+      At line 236 in file Sudoku.s
+      At line 239 in file Sudoku.s
+
+forNotOriginalCoordinateX 000004C0
+
+Symbol: forNotOriginalCoordinateX
+   Definitions
+      At line 478 in file Sudoku.s
+   Uses
+      At line 484 in file Sudoku.s
+      At line 490 in file Sudoku.s
+
+forRowDisplay 00000620
+
+Symbol: forRowDisplay
+   Definitions
+      At line 605 in file Sudoku.s
+   Uses
+      At line 639 in file Sudoku.s
+Comment: forRowDisplay used once
+forRowUnique 000002F4
+
+Symbol: forRowUnique
+   Definitions
+      At line 303 in file Sudoku.s
+   Uses
+      At line 314 in file Sudoku.s
+Comment: forRowUnique used once
+forSetArray 000003AC
+
+Symbol: forSetArray
+   Definitions
+      At line 376 in file Sudoku.s
+   Uses
+      At line 380 in file Sudoku.s
+Comment: forSetArray used once
+getCoordinate 000002B0
+
+Symbol: getCoordinate
+   Definitions
+      At line 275 in file Sudoku.s
+   Uses
+      At line 258 in file Sudoku.s
+      At line 262 in file Sudoku.s
+
+getGridFive 00000058
+
+Symbol: getGridFive
+   Definitions
+      At line 47 in file Sudoku.s
+   Uses
+      At line 29 in file Sudoku.s
+
+
+
+ARM Macro Assembler    Page 7 Alphabetic symbol ordering
+Relocatable symbols
+
+Comment: getGridFive used once
+getGridFour 00000050
+
+Symbol: getGridFour
+   Definitions
+      At line 43 in file Sudoku.s
+   Uses
+      At line 26 in file Sudoku.s
+Comment: getGridFour used once
+getGridOne 00000038
+
+Symbol: getGridOne
+   Definitions
+      At line 31 in file Sudoku.s
+   Uses
+      At line 17 in file Sudoku.s
+Comment: getGridOne used once
+getGridThree 00000048
+
+Symbol: getGridThree
+   Definitions
+      At line 39 in file Sudoku.s
+   Uses
+      At line 23 in file Sudoku.s
+Comment: getGridThree used once
+getGridTwo 00000040
+
+Symbol: getGridTwo
+   Definitions
+      At line 35 in file Sudoku.s
+   Uses
+      At line 20 in file Sudoku.s
+Comment: getGridTwo used once
+getSquare 00000120
+
+Symbol: getSquare
+   Definitions
+      At line 115 in file Sudoku.s
+   Uses
+      At line 223 in file Sudoku.s
+      At line 230 in file Sudoku.s
+      At line 320 in file Sudoku.s
+      At line 522 in file Sudoku.s
+      At line 630 in file Sudoku.s
+      At line 679 in file Sudoku.s
+
+getUserCoordinates 00000484
+
+Symbol: getUserCoordinates
+   Definitions
+      At line 451 in file Sudoku.s
+   Uses
+      At line 397 in file Sudoku.s
+      At line 402 in file Sudoku.s
+
+increaseX 000006DC
+
+Symbol: increaseX
+   Definitions
+
+
+
+ARM Macro Assembler    Page 8 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 669 in file Sudoku.s
+   Uses
+      At line 691 in file Sudoku.s
+Comment: increaseX used once
+invalid 0000039C
+
+Symbol: invalid
+   Definitions
+      At line 367 in file Sudoku.s
+   Uses
+      At line 362 in file Sudoku.s
+Comment: invalid used once
+isNotOriginalCoordinate 000004A0
+
+Symbol: isNotOriginalCoordinate
+   Definitions
+      At line 468 in file Sudoku.s
+   Uses
+      At line 409 in file Sudoku.s
+Comment: isNotOriginalCoordinate used once
+isUniqueBox 000002D4
+
+Symbol: isUniqueBox
+   Definitions
+      At line 293 in file Sudoku.s
+   Uses
+      At line 268 in file Sudoku.s
+Comment: isUniqueBox used once
+isValidAll 0000019C
+
+Symbol: isValidAll
+   Definitions
+      At line 167 in file Sudoku.s
+   Uses
+      At line 557 in file Sudoku.s
+Comment: isValidAll used once
+isValidBox 00000274
+
+Symbol: isValidBox
+   Definitions
+      At line 251 in file Sudoku.s
+   Uses
+      At line 191 in file Sudoku.s
+Comment: isValidBox used once
+isValidRowAndCol 000001F0
+
+Symbol: isValidRowAndCol
+   Definitions
+      At line 201 in file Sudoku.s
+   Uses
+      At line 176 in file Sudoku.s
+      At line 183 in file Sudoku.s
+
+loop 000002BC
+
+Symbol: loop
+   Definitions
+      At line 280 in file Sudoku.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 9 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 284 in file Sudoku.s
+Comment: loop used once
+preEndOfNotOriginalCoordinate 000004E8
+
+Symbol: preEndOfNotOriginalCoordinate
+   Definitions
+      At line 492 in file Sudoku.s
+   Uses
+      At line 481 in file Sudoku.s
+Comment: preEndOfNotOriginalCoordinate used once
+preForColDisplay 00000650
+
+Symbol: preForColDisplay
+   Definitions
+      At line 621 in file Sudoku.s
+   Uses
+      At line 610 in file Sudoku.s
+      At line 617 in file Sudoku.s
+
+printAnswer 00000108
+
+Symbol: printAnswer
+   Definitions
+      At line 101 in file Sudoku.s
+   Uses
+      At line 83 in file Sudoku.s
+Comment: printAnswer used once
+sendUserWantingSolve 00000498
+
+Symbol: sendUserWantingSolve
+   Definitions
+      At line 458 in file Sudoku.s
+   Uses
+      None
+Comment: sendUserWantingSolve unused
+setSquare 0000014C
+
+Symbol: setSquare
+   Definitions
+      At line 131 in file Sudoku.s
+   Uses
+      At line 425 in file Sudoku.s
+      At line 556 in file Sudoku.s
+      At line 587 in file Sudoku.s
+      At line 686 in file Sudoku.s
+
+start 00000000
+
+Symbol: start
+   Definitions
+      At line 10 in file Sudoku.s
+   Uses
+      At line 7 in file Sudoku.s
+Comment: start used once
+startCopying 000006EC
+
+Symbol: startCopying
+   Definitions
+      At line 675 in file Sudoku.s
+
+
+
+ARM Macro Assembler    Page 10 Alphabetic symbol ordering
+Relocatable symbols
+
+   Uses
+      At line 667 in file Sudoku.s
+      At line 692 in file Sudoku.s
+
+startSolving 000000AC
+
+Symbol: startSolving
+   Definitions
+      At line 74 in file Sudoku.s
+   Uses
+      At line 59 in file Sudoku.s
+Comment: startSolving used once
+stop 0000011C
+
+Symbol: stop
+   Definitions
+      At line 108 in file Sudoku.s
+   Uses
+      At line 99 in file Sudoku.s
+      At line 108 in file Sudoku.s
+
+sudoku 000004F4
+
+Symbol: sudoku
+   Definitions
+      At line 503 in file Sudoku.s
+   Uses
+      At line 81 in file Sudoku.s
+      At line 92 in file Sudoku.s
+      At line 444 in file Sudoku.s
+      At line 540 in file Sudoku.s
+      At line 574 in file Sudoku.s
+
+takeInputs 000003C0
+
+Symbol: takeInputs
+   Definitions
+      At line 387 in file Sudoku.s
+   Uses
+      At line 72 in file Sudoku.s
+Comment: takeInputs used once
+trueEndOfSudoku 00000610
+
+Symbol: trueEndOfSudoku
+   Definitions
+      At line 593 in file Sudoku.s
+   Uses
+      At line 533 in file Sudoku.s
+      At line 567 in file Sudoku.s
+
+whileArrayUnique 0000036C
+
+Symbol: whileArrayUnique
+   Definitions
+      At line 351 in file Sudoku.s
+   Uses
+      At line 364 in file Sudoku.s
+Comment: whileArrayUnique used once
+whileDisplayingRow 0000063C
+
+
+
+ARM Macro Assembler    Page 11 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: whileDisplayingRow
+   Definitions
+      At line 614 in file Sudoku.s
+   Uses
+      At line 619 in file Sudoku.s
+Comment: whileDisplayingRow used once
+whileDisplayingRow2 000006A0
+
+Symbol: whileDisplayingRow2
+   Definitions
+      At line 644 in file Sudoku.s
+   Uses
+      At line 649 in file Sudoku.s
+Comment: whileDisplayingRow2 used once
+70 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+Grids 00000000
+
+Symbol: Grids
+   Definitions
+      At line 698 in file Sudoku.s
+   Uses
+      None
+Comment: Grids unused
+arrayForUnique 000001E6
+
+Symbol: arrayForUnique
+   Definitions
+      At line 766 in file Sudoku.s
+   Uses
+      At line 207 in file Sudoku.s
+      At line 242 in file Sudoku.s
+      At line 300 in file Sudoku.s
+      At line 332 in file Sudoku.s
+      At line 372 in file Sudoku.s
+
+correct 00000394
+
+Symbol: correct
+   Definitions
+      At line 806 in file Sudoku.s
+   Uses
+      At line 97 in file Sudoku.s
+      At line 103 in file Sudoku.s
+
+error 0000036C
+
+Symbol: error
+   Definitions
+      At line 803 in file Sudoku.s
+   Uses
+      At line 85 in file Sudoku.s
+Comment: error used once
+greeting 0000028D
+
+Symbol: greeting
+   Definitions
+      At line 794 in file Sudoku.s
+   Uses
+      At line 12 in file Sudoku.s
+Comment: greeting used once
+gridFive 00000144
+
+Symbol: gridFive
+   Definitions
+      At line 744 in file Sudoku.s
+   Uses
+      At line 48 in file Sudoku.s
+Comment: gridFive used once
+gridFour 000000F3
+
+Symbol: gridFour
+   Definitions
+      At line 733 in file Sudoku.s
+   Uses
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+      At line 44 in file Sudoku.s
+Comment: gridFour used once
+gridLinesH 0000027A
+
+Symbol: gridLinesH
+   Definitions
+      At line 791 in file Sudoku.s
+   Uses
+      At line 607 in file Sudoku.s
+      At line 643 in file Sudoku.s
+
+gridLinesV 0000026D
+
+Symbol: gridLinesV
+   Definitions
+      At line 788 in file Sudoku.s
+   Uses
+      At line 608 in file Sudoku.s
+Comment: gridLinesV used once
+gridOne 00000000
+
+Symbol: gridOne
+   Definitions
+      At line 700 in file Sudoku.s
+   Uses
+      At line 32 in file Sudoku.s
+Comment: gridOne used once
+gridThree 000000A2
+
+Symbol: gridThree
+   Definitions
+      At line 722 in file Sudoku.s
+   Uses
+      At line 40 in file Sudoku.s
+Comment: gridThree used once
+gridTwo 00000051
+
+Symbol: gridTwo
+   Definitions
+      At line 711 in file Sudoku.s
+   Uses
+      At line 36 in file Sudoku.s
+Comment: gridTwo used once
+inputSystem 000002FD
+
+Symbol: inputSystem
+   Definitions
+      At line 800 in file Sudoku.s
+   Uses
+      At line 66 in file Sudoku.s
+Comment: inputSystem used once
+query 000002DD
+
+Symbol: query
+   Definitions
+      At line 797 in file Sudoku.s
+   Uses
+      At line 54 in file Sudoku.s
+Comment: query used once
+
+
+
+ARM Macro Assembler    Page 3 Alphabetic symbol ordering
+Relocatable symbols
+
+tmpArrayX 000001EF
+
+Symbol: tmpArrayX
+   Definitions
+      At line 770 in file Sudoku.s
+   Uses
+      At line 473 in file Sudoku.s
+      At line 664 in file Sudoku.s
+
+tmpArrayY 0000022E
+
+Symbol: tmpArrayY
+   Definitions
+      At line 779 in file Sudoku.s
+   Uses
+      At line 474 in file Sudoku.s
+      At line 665 in file Sudoku.s
+
+tmpGrid 00000195
+
+Symbol: tmpGrid
+   Definitions
+      At line 755 in file Sudoku.s
+   Uses
+      At line 88 in file Sudoku.s
+      At line 93 in file Sudoku.s
+      At line 663 in file Sudoku.s
+
+17 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+ClearScreen 00000000
+
+Symbol: ClearScreen
+   Definitions
+      At line 5 in file Sudoku.s
+   Uses
+      At line 11 in file Sudoku.s
+      At line 53 in file Sudoku.s
+      At line 65 in file Sudoku.s
+      At line 76 in file Sudoku.s
+      At line 102 in file Sudoku.s
+
+getkey 00000000
+
+Symbol: getkey
+   Definitions
+      At line 3 in file Sudoku.s
+   Uses
+      At line 15 in file Sudoku.s
+      At line 57 in file Sudoku.s
+      At line 396 in file Sudoku.s
+      At line 401 in file Sudoku.s
+      At line 413 in file Sudoku.s
+
+main 00000000
+
+Symbol: main
+   Definitions
+      At line 2 in file Sudoku.s
+   Uses
+      None
+Comment: main unused
+sendchar 00000000
+
+Symbol: sendchar
+   Definitions
+      At line 4 in file Sudoku.s
+   Uses
+      At line 52 in file Sudoku.s
+      At line 61 in file Sudoku.s
+      At line 75 in file Sudoku.s
+      At line 96 in file Sudoku.s
+      At line 157 in file Sudoku.s
+      At line 417 in file Sudoku.s
+      At line 435 in file Sudoku.s
+      At line 440 in file Sudoku.s
+      At line 453 in file Sudoku.s
+      At line 612 in file Sudoku.s
+      At line 618 in file Sudoku.s
+      At line 623 in file Sudoku.s
+      At line 626 in file Sudoku.s
+      At line 633 in file Sudoku.s
+      At line 642 in file Sudoku.s
+      At line 648 in file Sudoku.s
+
+setCursorPosition 00000000
+
+Symbol: setCursorPosition
+   Definitions
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+External symbols
+
+      At line 6 in file Sudoku.s
+   Uses
+      At line 395 in file Sudoku.s
+      At line 432 in file Sudoku.s
+
+5 symbols
+431 symbols in table
